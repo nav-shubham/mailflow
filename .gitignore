@@ -4,3 +4,10 @@ emails.db
 *.xlsx
 __pycache__/
 *.pyc
+
+# Added by Antigravity CLI
+.env.*
+.env.local
+downloader.db
+env/
+venv/
