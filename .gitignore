@@ -1,0 +1,6 @@
+.venv/
+.env
+emails.db
+*.xlsx
+__pycache__/
+*.pyc

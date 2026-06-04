@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MailFlow — Email Automation Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body class="dark-theme">
+    <div class="app-container">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <span class="logo-icon">📧</span>
+                <h2>MailFlow</h2>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active" data-target="dashboard-view">
+                    <span class="nav-icon">📊</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-item" data-target="settings-view">
+                    <span class="nav-icon">⚙️</span>
+                    <span>Settings</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="api-status">
+                    <span class="status-indicator online" id="connection-status"></span>
+                    <span class="status-text" id="connection-text">IMAP Ready</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="main-content">
+            <!-- HEADER -->
+            <header class="app-header">
+                <div class="header-title">
+                    <h1 id="page-title">Dashboard</h1>
+                    <p id="page-subtitle">Scan, filter, and review recent emails across your accounts</p>
+                </div>
+                <div class="header-actions">
+                    <button id="scan-btn" class="btn btn-primary">
+                        <span class="btn-icon">🔍</span>
+                        <span class="btn-text">Scan Emails</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- STATS ROW -->
+            <section class="stats-container">
+                <div class="stat-card">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-info">
+                        <h3>Active Accounts</h3>
+                        <p id="stat-accounts">0 / 2</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">⏱️</div>
+                    <div class="stat-info">
+                        <h3>Lookback Period</h3>
+                        <p id="stat-lookback">48 Hours</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">✉️</div>
+                    <div class="stat-info">
+                        <h3>Emails Scanned</h3>
+                        <p id="stat-emails">0</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VIEW: DASHBOARD -->
+            <div id="dashboard-view" class="view-panel active">
+                <!-- SCANNING PROGRESS BAR -->
+                <div id="scan-progress-bar-container" class="scan-progress-card hidden">
+                    <div class="progress-info">
+                        <span id="scan-progress-title">Connecting to Gmail...</span>
+                        <span id="scan-progress-ratio">0/2 Accounts</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div id="scan-progress-fill" class="progress-bar-fill animate-pulse" style="width: 0%"></div>
+                    </div>
+                    <p id="scan-progress-subtext" class="scan-subtext">Preparing inbox scan...</p>
+                </div>
+
+                <!-- RECENT RUN SCANS ALERT BANNER -->
+                <div id="recent-scans-banner" class="alert-banner hidden">
+                    <div class="alert-content">
+                        <span class="alert-icon">📅</span>
+                        <div class="alert-text-wrapper">
+                            <h4>Recent Scan Loaded</h4>
+                            <p id="recent-scans-text">Showing emails from the last scan on --/--/----.</p>
+                        </div>
+                    </div>
+                    <button id="fresh-scan-banner-btn" class="btn btn-primary btn-sm">Run Fresh Scan</button>
+                </div>
+
+                <!-- FILTER TOOLBAR -->
+                <div class="filter-toolbar">
+                    <div class="search-box">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" id="search-input" placeholder="Search by subject, sender, or content...">
+                    </div>
+                    <div class="filter-options">
+                        <select id="account-filter" class="form-select">
+                            <option value="all">All Accounts</option>
+                        </select>
+                        <select id="sort-select" class="form-select">
+                            <option value="newest">Newest First</option>
+                            <option value="oldest">Oldest First</option>
+                        </select>
+                    </div>
+                    <div class="bulk-actions">
+                        <button id="export-excel-btn" class="btn btn-success">
+                            <span>📊</span> Export Excel Report
+                        </button>
+                    </div>
+                </div>
+
+                <!-- EMAIL LIST CONTAINER -->
+                <div class="email-list-container" id="email-list-container">
+                    <div id="email-list" class="email-list">
+                        <!-- Populated dynamically via JS -->
+                    </div>
+                    
+                    <div id="empty-state" class="empty-state">
+                        <div class="empty-icon">📂</div>
+                        <h2>No emails loaded</h2>
+                        <p>Click "Scan Emails" at the top to fetch the latest messages from your configured Gmail accounts.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW: SETTINGS -->
+            <div id="settings-view" class="view-panel">
+                <div class="panel-card w-md">
+                    <h2>Gmail IMAP Configuration</h2>
+                    <p class="section-desc">Set up credentials for your email accounts and adjust looking back scanning settings.</p>
+                    
+                    <hr class="card-divider">
+
+                    <!-- ACCOUNT 1 -->
+                    <div class="settings-section">
+                        <h3>Gmail Account 1</h3>
+                        <div class="form-group">
+                            <label for="setting-email-1">Email Address</label>
+                            <input type="email" id="setting-email-1" class="form-input" placeholder="e.g. user1@gmail.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="setting-email-1-pwd">Gmail App Password</label>
+                            <div class="password-input-wrapper">
+                                <input type="password" id="setting-email-1-pwd" class="form-input" placeholder="Enter Gmail App Password">
+                                <button type="button" class="btn-toggle-pwd" data-target="setting-email-1-pwd">👁️</button>
+                            </div>
+                            <small class="form-help">Ensure IMAP is enabled in Gmail and you use a 16-character App Password (not your main password).</small>
+                        </div>
+                    </div>
+
+                    <hr class="card-divider">
+
+                    <!-- ACCOUNT 2 -->
+                    <div class="settings-section">
+                        <h3>Gmail Account 2 (Optional)</h3>
+                        <div class="form-group">
+                            <label for="setting-email-2">Email Address</label>
+                            <input type="email" id="setting-email-2" class="form-input" placeholder="e.g. user2@gmail.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="setting-email-2-pwd">Gmail App Password</label>
+                            <div class="password-input-wrapper">
+                                <input type="password" id="setting-email-2-pwd" class="form-input" placeholder="Enter Gmail App Password">
+                                <button type="button" class="btn-toggle-pwd" data-target="setting-email-2-pwd">👁️</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="card-divider">
+
+                    <!-- SCANNER SETTINGS -->
+                    <div class="settings-section">
+                        <h3>Scanner Preferences</h3>
+                        <div class="form-group">
+                            <label for="setting-lookback">Lookback Period (Hours)</label>
+                            <input type="number" id="setting-lookback" class="form-input" min="1" max="168" value="48">
+                            <small class="form-help">Scans for emails received within this lookback hour window (default 48 hours).</small>
+                        </div>
+                    </div>
+
+                    <button id="save-settings-btn" class="btn btn-primary w-full mt-lg">Save Configuration</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- TOAST SYSTEM -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
